@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "39634296184",
+    "project_id": "notes-app-tiara",
+    "storage_bucket": "notes-app-tiara.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:39634296184:android:b7b7cc3a0dea0321377c8d",
+        "android_client_info": {
+          "package_name": "com.example.notes_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBakPoC_6V3Z2SU1V5u59avQczL9hmhP7Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
