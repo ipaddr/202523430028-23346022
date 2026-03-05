@@ -6,6 +6,8 @@ class VerifyEmailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Verify Email"),
@@ -14,29 +16,33 @@ class VerifyEmailPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+
             const Text(
               "Please check your email and verify your account.",
               textAlign: TextAlign.center,
             ),
+
             const SizedBox(height: 20),
 
-            // Tombol cek apakah sudah verifikasi
             ElevatedButton(
               onPressed: () async {
+
                 await FirebaseAuth.instance.currentUser?.reload();
 
                 final user = FirebaseAuth.instance.currentUser;
 
                 if (user != null && user.emailVerified) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                        content: Text("Email sudah diverifikasi!")),
-                  );
+
+                  Navigator.of(context).pushReplacementNamed('/');
+
                 } else {
+
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                        content: Text("Email belum diverifikasi")),
+                      content: Text("Email belum diverifikasi"),
+                    ),
                   );
+
                 }
               },
               child: const Text("I have verified"),
@@ -44,19 +50,21 @@ class VerifyEmailPage extends StatelessWidget {
 
             const SizedBox(height: 10),
 
-            // Tombol kirim ulang email
             ElevatedButton(
               onPressed: () async {
-                await FirebaseAuth.instance.currentUser
-                    ?.sendEmailVerification();
+
+                await user?.sendEmailVerification();
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                      content: Text("Email verifikasi dikirim ulang")),
+                    content: Text("Email verifikasi dikirim ulang"),
+                  ),
                 );
+
               },
               child: const Text("Resend Email"),
             ),
+
           ],
         ),
       ),

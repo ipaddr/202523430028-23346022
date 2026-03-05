@@ -4,6 +4,7 @@ import 'firebase_options.dart';
 import 'services/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'verify_email_page.dart';
+import 'notes_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -48,13 +49,11 @@ class AuthWrapper extends StatelessWidget {
           return const LoginPage();
         }
 
-        return const HomePage();
-
         if (!user.emailVerified) {
           return const VerifyEmailPage();
         }
 
-        return const HomePage();
+        return const NotesView();
       },
     );
   }

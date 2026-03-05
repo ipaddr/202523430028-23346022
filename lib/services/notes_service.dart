@@ -5,85 +5,124 @@ import 'package:sqflite/sqflite.dart';
 class NotesService {
   static Database? _db;
 
+  final StreamController<List<Map<String, dynamic>>> _notesStreamController =
+      StreamController.broadcast();
+
+  Stream<List<Map<String, dynamic>>> get allNotes =>
+      _notesStreamController.stream;
+
   // =========================
-  // DATABASE INITIALIZATION
+  // DATABASE
   // =========================
 
   Future<Database> get database async {
     if (_db != null) return _db!;
-    _db = await _initDB();
-    return _db!;
-  }
 
-  Future<Database> _initDB() async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, 'notes.db');
 
-    return await openDatabase(
+    _db = await openDatabase(
       path,
       version: 1,
       onCreate: (db, version) async {
         await db.execute('''
-          CREATE TABLE notes (
+          CREATE TABLE notes(
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             text TEXT NOT NULL
           )
         ''');
       },
     );
+
+    return _db!;
   }
 
   // =========================
-  // CREATE
+  // CREATE NOTE
   // =========================
 
-  Future<int> createNote(String text) async {
+  Future<void> createNote(String text) async {
     final db = await database;
 
-    return await db.insert(
+    await db.insert(
       'notes',
-      {
-        'text': text,
-      },
+      {'text': text},
     );
+
+    await _emitNotes();
   }
 
   // =========================
-  // READ ALL
+  // READ NOTES
   // =========================
 
   Future<List<Map<String, dynamic>>> getAllNotes() async {
     final db = await database;
 
-    return await db.query('notes', orderBy: 'id DESC');
+    final notes = await db.query(
+      'notes',
+      orderBy: 'id DESC',
+    );
+
+    return notes;
   }
 
   // =========================
-  // UPDATE
+  // UPDATE NOTE
   // =========================
 
-  Future<int> updateNote(int id, String newText) async {
+  Future<void> updateNote(int id, String text) async {
     final db = await database;
 
-    return await db.update(
+    await db.update(
       'notes',
-      {'text': newText},
+      {'text': text},
       where: 'id = ?',
       whereArgs: [id],
     );
+
+    await _emitNotes();
   }
 
   // =========================
-  // DELETE
+  // DELETE NOTE
   // =========================
 
-  Future<int> deleteNote(int id) async {
+  Future<void> deleteNote(int id) async {
     final db = await database;
 
-    return await db.delete(
+    await db.delete(
       'notes',
       where: 'id = ?',
       whereArgs: [id],
     );
+
+    await _emitNotes();
+  }
+
+  // =========================
+  // EMIT STREAM DATA
+  // =========================
+
+  Future<void> _emitNotes() async {
+    final notes = await getAllNotes();
+    _notesStreamController.add(notes);
+  }
+
+  // =========================
+  // LOAD FIRST DATA
+  // =========================
+
+  Future<void> init() async {
+    await database;
+    await _emitNotes();
+  }
+
+  // =========================
+  // CLOSE STREAM
+  // =========================
+
+  void dispose() {
+    _notesStreamController.close();
   }
 }
