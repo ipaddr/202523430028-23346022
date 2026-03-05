@@ -11,18 +11,13 @@ class NotesView extends StatefulWidget {
 }
 
 class _NotesViewState extends State<NotesView> {
+
   final NotesService _notesService = NotesService();
 
   @override
   void initState() {
     super.initState();
-    _notesService.init();
-  }
-
-  // load data pertama
-  Future<void> _loadNotes() async {
-    await _notesService.database;
-    await _notesService.getAllNotes();
+    _notesService.init(); // load notes pertama
   }
 
   @override
@@ -32,30 +27,34 @@ class _NotesViewState extends State<NotesView> {
         title: const Text("Your Notes"),
       ),
 
-      // tombol tambah
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          await _notesService.createNote("New Note");
-        },
+
+        print("ADD BUTTON PRESSED");
+
+        await _notesService.createNote("New Note");
+
+      },
         child: const Icon(Icons.add),
       ),
+
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: _notesService.allNotes,
         builder: (context, snapshot) {
 
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
+          if (!snapshot.hasData) {
             return const Center(
               child: Text("No Notes Yet"),
             );
           }
 
           final notes = snapshot.data!;
+
+          if (notes.isEmpty) {
+            return const Center(
+              child: Text("No Notes Yet"),
+            );
+          }
 
           return ListView.builder(
             itemCount: notes.length,
@@ -69,6 +68,7 @@ class _NotesViewState extends State<NotesView> {
                 trailing: IconButton(
                   icon: const Icon(Icons.delete),
                   onPressed: () async {
+                    print("BUTTON CLICKED");
                     await _notesService.deleteNote(note['id']);
                   },
                 ),
